@@ -1,0 +1,15 @@
+.git
+.venv
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+artifacts/*
+!artifacts/.gitkeep
+data_storage/*
+!data_storage/.gitkeep
+*.egg-info/
+dist/
+build/

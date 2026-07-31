@@ -1,0 +1,19 @@
+defaults:
+  - system: cuda_rtx3080
+  - model: qlora_nf4
+  - data: dataset_150k
+  - _self_
+
+project_name: "OmniPEFT"
+run_id: "omnipeft_production_run_01"
+output_dir: "${paths.artifacts_dir}/${run_id}"
+
+paths:
+  root_dir: "."
+  artifacts_dir: "./artifacts"
+  checkpoints_dir: "./artifacts/checkpoints"
+  eda_reports_dir: "./artifacts/eda_reports"
+  eval_results_dir: "./artifacts/evaluation_results"
+
+seed: 42
+debug_mode: false

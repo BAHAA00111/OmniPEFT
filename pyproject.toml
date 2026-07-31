@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnipeft"
+version = "1.0.0"
+description = "End-to-End LLM Optimization, Runtime Weight Fusion, and Statistical Evaluation Engine"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "OmniPEFT Team", email = "engineering@frontier.ai" }
+]
+keywords = [
+    "llm", "peft", "qlora", "cuda", "weight-fusion", 
+    "vram-optimization", "hypothesis-testing", "pytorch"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+dependencies = [
+    "torch>=2.4.0",
+    "transformers>=4.40.0",
+    "peft>=0.11.0",
+    "bitsandbytes>=0.43.0",
+    "accelerate>=0.30.0",
+    "hydra-core>=1.3.2",
+    "pydantic>=2.7.0",
+    "polars>=0.20.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "scipy>=1.13.0",
+    "sacrebleu>=2.4.0",
+    "rouge-score>=0.1.2",
+    "tensorboard>=2.16.0",
+    "tqdm>=4.66.0",
+    "pyyaml>=6.0.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "black>=24.4.0",
+    "mypy>=1.10.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["omnipeft*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+ignore = [
+    "I",     
+    "UP",   
+    "E501",
+    "B008",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

@@ -1,0 +1,26 @@
+{
+  "base_model": "HuggingFaceTB/SmolLM2-135M",
+  "fused_model": "HuggingFaceTB/SmolLM2-135M",
+  "base_results": {
+    "rouge1": 3.4091,
+    "rouge2": 3.4091,
+    "rougeL": 3.4091,
+    "bleu": 0.0,
+    "perplexity": 94.878
+  },
+  "fused_results": {
+    "rouge1": 3.4091,
+    "rouge2": 3.4091,
+    "rougeL": 3.4091,
+    "bleu": 0.0,
+    "perplexity": 94.878
+  },
+  "scores_base": [
+    0.0,
+    6.8182
+  ],
+  "scores_fused": [
+    0.0,
+    6.8182
+  ]
+}

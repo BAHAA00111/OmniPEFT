@@ -1,0 +1,18 @@
+dataset_name: "HuggingFaceH4/ultrafeedback_binarized"
+total_sample_target: 150000
+
+splits:
+  train_ratio: 0.90
+  val_ratio: 0.05
+  test_ratio: 0.05
+
+sequence_formatting:
+  max_seq_length: 2048
+  truncation_strategy: "longest_first"
+  padding_strategy: "max_length"
+  prompt_template: "<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n{response}<|im_end|>"
+
+processing:
+  streaming: true
+  batch_size: 1000
+  cache_dir: "./.cache/datasets"

@@ -1,0 +1,39 @@
+{
+    "dataset_name": "ultrafeedback_binarized",
+    "total_samples": 61115,
+    "missing_value_counts": {
+        "prompt": 0,
+        "response": 0
+    },
+    "prompt_length_quantiles": {
+        "p50": 77.0,
+        "p90": 417.0,
+        "p95": 621.0,
+        "p99": 1130.8600000000006,
+        "max_len": 5629,
+        "min_len": 2,
+        "mean": 159.0654176552401,
+        "std_dev": 230.74410840747046
+    },
+    "response_length_quantiles": {
+        "p50": 222.0,
+        "p90": 618.0,
+        "p95": 738.0,
+        "p99": 905.0,
+        "max_len": 1482,
+        "min_len": 1,
+        "mean": 275.22266219422403,
+        "std_dev": 238.16174264397287
+    },
+    "total_sequence_quantiles": {
+        "p50": 378.0,
+        "p90": 832.5999999999985,
+        "p95": 989.0,
+        "p99": 1428.0,
+        "max_len": 5818,
+        "min_len": 11,
+        "mean": 434.2880798494641,
+        "std_dev": 308.15437607977395
+    },
+    "recommended_max_seq_length": 2048
+}

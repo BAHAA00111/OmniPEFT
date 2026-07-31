@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C++ Extensions & Build Artifacts
+*.so
+*.o
+*.a
+*.pyd
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+torch_env/
+
+# IDEs & System Files
+.vscode/
+.idea/
+.DS_Store
+
+# Tooling Caches
+.cache/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Large Model Checkpoints & Weights (Track via Hugging Face or DVC instead)
+*.bin
+*.pt
+*.safetensors
+*.pth

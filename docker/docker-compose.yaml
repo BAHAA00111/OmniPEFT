@@ -1,0 +1,51 @@
+services:
+  omnipeft-evaluator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: omnipeft:latest
+    container_name: omnipeft_evaluator
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - HF_HUB_OFFLINE=0
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ../artifacts:/workspace/artifacts
+      - ../configs:/workspace/configs:ro
+      - ../data_storage:/workspace/data_storage:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ipc: host
+    # Notice: 'python3' removed since ENTRYPOINT ["python3"] is in Dockerfile
+    command: ["evaluate.py", "--base_model", "HuggingFaceTB/SmolLM2-135M", "--fused_model", "HuggingFaceTB/SmolLM2-135M"]
+
+  omnipeft-trainer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: omnipeft:latest
+    container_name: omnipeft_trainer
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    volumes:
+      - ../artifacts:/workspace/artifacts
+      - ../configs:/workspace/configs
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ipc: host
+    command: ["train.py"]

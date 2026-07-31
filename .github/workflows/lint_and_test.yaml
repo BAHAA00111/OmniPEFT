@@ -1,0 +1,87 @@
+name: OmniPEFT CI/CD Quality Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-typecheck:
+    name: Code Style, Formatting & Static Type Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install Linting & Static Analysis Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black mypy
+
+      - name: Run Ruff Linter
+        run: |
+          # Enforce strict linting checks over core omnipeft library and scripts
+          ruff check omnipeft/ tests/ evaluate.py train.py
+
+      - name: Check Formatting with Black
+        run: |
+          # Verify code conforms to standard Black style guidelines
+          black --check omnipeft/ tests/ evaluate.py train.py
+
+      - name: Run MyPy Static Type Checker
+        run: |
+          # Verify type annotations without installing full PyTorch GPU runtime in lint job
+          mypy --ignore-missing-imports omnipeft/ evaluate.py train.py
+
+  pytest-suite:
+    name: Test Execution Engine
+    needs: lint-and-typecheck
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          # Install CPU PyTorch for lightweight CI testing
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+          pip install -e .
+
+      - name: Execute PyTest Suite with Coverage
+        env:
+          # Enable strict offline mode to ensure tests don't break on external API failures
+          HF_HUB_OFFLINE: "1"
+        run: |
+          pytest tests/ -v --cov=omnipeft --cov-report=term-missing --cov-report=xml
+
+      - name: Upload Test Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-python-${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: ignore

@@ -1,0 +1,24 @@
+system_name: "NVIDIA_RTX_3080_10GB_Fedora44"
+device: "cuda"
+gpu_index: 0
+
+vram_limits:
+  max_allowed_vram_gb: 9.5
+  target_training_vram_gb: 7.8
+  reserve_vram_margin_gb: 1.0
+
+cuda_allocator:
+  # Prevents VRAM fragmentation OOMs during long context backpropagation
+  max_split_size_mb: 128
+  garbage_collection_threshold: 0.8
+  enable_cuda_expandable_segments: true
+
+precision:
+  mixed_precision_type: "bfloat16"
+  enable_autocast: true
+  enable_sdpa: true   
+
+performance:
+  dataloader_num_workers: 4
+  pin_memory: true
+  persistent_workers: true
