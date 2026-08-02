@@ -73,8 +73,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run Trivy Vulnerability Scanner (Container Image)
-        uses: aquasecurity/trivy-action@0.20.0
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: ${{ steps.meta.outputs.tags }}
           format: 'table'
