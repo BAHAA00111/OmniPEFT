@@ -3,7 +3,10 @@
 import pytest
 import numpy as np
 
-from omnipeft.analytics.hypothesis_testing import HypothesisTestingEngine, SignificanceTestResult
+from omnipeft.analytics.hypothesis_testing import (
+    HypothesisTestingEngine,
+    SignificanceTestResult,
+)
 
 
 def test_hypothesis_testing_significant_difference() -> None:

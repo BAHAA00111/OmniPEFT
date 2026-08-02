@@ -8,7 +8,7 @@ and execution speedup comparisons on synthetic PyTorch modules.
 from typing import cast
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from omnipeft.systems.benchmark_engine import LatencyBenchmarkEngine
 
@@ -20,7 +20,9 @@ class MockLinearLM(nn.Module):
         self.proj = nn.Linear(hidden_dim, hidden_dim)
         self.head = nn.Linear(hidden_dim, vocab_size)
 
-    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor | None = None) -> torch.Tensor:
+    def forward(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor | None = None
+    ) -> torch.Tensor:
         x = self.embedding(input_ids)
         x = self.proj(x)
         out = self.head(x)

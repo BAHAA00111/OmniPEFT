@@ -9,7 +9,7 @@ from typing import Generator, Tuple, cast
 
 import pytest
 import torch
-import torch.nn as nn
+from torch import nn
 from peft import LoraConfig, get_peft_model
 from transformers import PreTrainedModel
 
@@ -19,7 +19,9 @@ from omnipeft.systems.weight_fusion import WeightFusionEngine
 class ToyCausalLM(nn.Module):
     """Simple synthetic model with linear layers for fast deterministic testing."""
 
-    def __init__(self, in_features: int = 64, hidden_dim: int = 128, out_features: int = 64) -> None:
+    def __init__(
+        self, in_features: int = 64, hidden_dim: int = 128, out_features: int = 64
+    ) -> None:
         super().__init__()
         self.fc1 = nn.Linear(in_features, hidden_dim, bias=True)
         self.act = nn.GELU()
@@ -84,7 +86,7 @@ def test_compute_delta_weight_math() -> None:
 
 
 def test_numerical_parity_adapter_vs_fused(
-    dummy_model_and_adapter: Tuple[nn.Module, torch.Tensor]
+    dummy_model_and_adapter: Tuple[nn.Module, torch.Tensor],
 ) -> None:
     """Verify numerical output parity: ||Model_adapter(x) - Model_fused(x)|| < epsilon."""
     peft_model, x = dummy_model_and_adapter
@@ -106,12 +108,14 @@ def test_numerical_parity_adapter_vs_fused(
     abs_diff = torch.abs(logits_adapter - logits_fused)
     max_diff = torch.max(abs_diff).item()
 
-    assert max_diff < 1e-4, f"Parity violation: Max absolute error {max_diff} exceeded tolerance 1e-4"
+    assert (
+        max_diff < 1e-4
+    ), f"Parity violation: Max absolute error {max_diff} exceeded tolerance 1e-4"
     torch.testing.assert_close(logits_adapter, logits_fused, rtol=1e-4, atol=1e-4)
 
 
 def test_structure_replacement_contains_no_lora_layers(
-    dummy_model_and_adapter: Tuple[nn.Module, torch.Tensor]
+    dummy_model_and_adapter: Tuple[nn.Module, torch.Tensor],
 ) -> None:
     """Assert all LoRA dynamic adapter structures are eliminated after fusion."""
     peft_model, _ = dummy_model_and_adapter

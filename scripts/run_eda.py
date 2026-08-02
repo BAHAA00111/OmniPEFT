@@ -124,7 +124,7 @@ def main() -> None:
     logger.info("Fetching dataset stream...")
     try:
         raw_ds = load_dataset(args.dataset_name, split=args.split, streaming=True)
-        
+
         sample_buffer: List[Dict[str, Any]] = []
         for i, item in enumerate(raw_ds):
             if i >= args.max_samples:
@@ -132,7 +132,7 @@ def main() -> None:
             sample_buffer.append(dict(item))
 
         logger.info("Successfully ingested %d raw samples.", len(sample_buffer))
-    except Exception as e:
+    except Exception as e: # noqa: BLE001
         logger.error("Failed to load dataset '%s': %s", args.dataset_name, e)
         sys.exit(1)
 
@@ -163,11 +163,15 @@ def main() -> None:
 
     logger.info("=== EDA Profiling Complete ===")
     logger.info("Total Samples Profiled: %d", summary.total_samples)
-    logger.info("Recommended Max Sequence Length: %d tokens", summary.recommended_max_seq_length)
-    logger.info("Token Length Quantiles (P50 / P90 / P99): %d / %d / %d",
-                int(summary.total_sequence_quantiles.p50),
-                int(summary.total_sequence_quantiles.p90),
-                int(summary.total_sequence_quantiles.p99))
+    logger.info(
+        "Recommended Max Sequence Length: %d tokens", summary.recommended_max_seq_length
+    )
+    logger.info(
+        "Token Length Quantiles (P50 / P90 / P99): %d / %d / %d",
+        int(summary.total_sequence_quantiles.p50),
+        int(summary.total_sequence_quantiles.p90),
+        int(summary.total_sequence_quantiles.p99),
+    )
     logger.info("Artifacts saved to: %s", Path(args.output_dir).resolve())
 
 

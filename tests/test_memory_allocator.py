@@ -2,6 +2,7 @@
 Verifies CUDA allocator environment setup, VRAM profiling accuracy,
 garbage collection purging, and dynamic OOM context interception.
 """
+
 import os
 import pytest
 import torch
@@ -21,12 +22,12 @@ class TestCUDAMemoryGuardEnvironment:
     def test_cuda_allocator_env_variable(self) -> None:
         # Verify PYTORCH_CUDA_ALLOC_CONF is configured with split size limits.
         alloc_conf = os.environ.get("PYTORCH_CUDA_ALLOC_CONF", "")
-        assert "max_split_size_mb:128" in alloc_conf, (
-            f"Expected 'max_split_size_mb:128' in PYTORCH_CUDA_ALLOC_CONF, got: {alloc_conf}"
-        )
-        assert "expandable_segments:True" in alloc_conf, (
-            f"Expected 'expandable_segments:True' in PYTORCH_CUDA_ALLOC_CONF, got: {alloc_conf}"
-        )
+        assert (
+            "max_split_size_mb:128" in alloc_conf
+        ), f"Expected 'max_split_size_mb:128' in PYTORCH_CUDA_ALLOC_CONF, got: {alloc_conf}"
+        assert (
+            "expandable_segments:True" in alloc_conf
+        ), f"Expected 'expandable_segments:True' in PYTORCH_CUDA_ALLOC_CONF, got: {alloc_conf}"
 
     def test_singleton_instance_available(self) -> None:
         # Verify the global singleton memory_guard is instantiated properly.
@@ -61,12 +62,14 @@ class TestVRAMStatsAndProfiling:
 
         # Allocate a ~500MB Float32 Tensor on GPU (125,000,000 elements * 4 bytes ≈ 500 MB)
         num_elements = 125_000_000
-        dummy_tensor = torch.empty((num_elements,), dtype=torch.float32, device="cuda:0")
+        dummy_tensor = torch.empty(
+            (num_elements,), dtype=torch.float32, device="cuda:0"
+        )
 
         post_alloc_stats = guard_instance.get_vram_stats()
-        assert post_alloc_stats.allocated_gb > initial_stats.allocated_gb, (
-            "VRAM allocated_gb should increase after tensor creation."
-        )
+        assert (
+            post_alloc_stats.allocated_gb > initial_stats.allocated_gb
+        ), "VRAM allocated_gb should increase after tensor creation."
 
         # Cleanup dummy tensor
         del dummy_tensor
@@ -87,7 +90,7 @@ class TestMemoryPurgingAndOOMGuard:
         # Allocate ~1.49 GiB temporary tensor (20,000 x 20,000 * 4 bytes)
         # This fits comfortably inside 10GB VRAM to test allocation reservation
         temp_tensor = torch.ones((20_000, 20_000), dtype=torch.float32, device="cuda:0")
-        
+
         # Verify allocation happened
         stats_during = guard_instance.get_vram_stats()
         assert stats_during.reserved_gb > 0.0
@@ -101,32 +104,37 @@ class TestMemoryPurgingAndOOMGuard:
             f"Before purge: {stats_during.reserved_gb} GB, After purge: {stats_after_purge.reserved_gb} GB"
         )
 
-    def test_zero_oom_context_normal_execution(self, guard_instance: CUDAMemoryGuard) -> None:
+    def test_zero_oom_context_normal_execution(
+        self, guard_instance: CUDAMemoryGuard
+    ) -> None:
         # Verify zero_oom_context allows normal execution without raising exceptions.
         executed = False
         with guard_instance.zero_oom_context():
             x = torch.tensor([1.0, 2.0, 3.0])
-            executed = (x.sum().item() == 6.0)
+            executed = x.sum().item() == 6.0
 
         assert executed is True
 
-    def test_zero_oom_context_intercepts_oom(self, guard_instance: CUDAMemoryGuard) -> None:
+    def test_zero_oom_context_intercepts_oom(
+        self, guard_instance: CUDAMemoryGuard
+    ) -> None:
         # Verify zero_oom_context catches torch.cuda.OutOfMemoryError and raises formatted RuntimeError.
         if not torch.cuda.is_available():
             pytest.skip("CUDA device not available.")
 
-        with pytest.raises(RuntimeError) as exc_info:
-            with guard_instance.zero_oom_context():
-                # Intentionally trigger OOM by asking for an impossible allocation (e.g. 1 Terabyte)
-                huge_elements = 1024 * 1024 * 1024 * 256  # 256 Billion Float32s = 1 TB
-                _ = torch.empty((huge_elements,), dtype=torch.float32, device="cuda:0")
+        with pytest.raises(RuntimeError) as exc_info, guard_instance.zero_oom_context():
+            # Intentionally trigger OOM by asking for an impossible allocation (e.g. 1 Terabyte)
+            huge_elements = 1024 * 1024 * 1024 * 256  # 256 Billion Float32s = 1 TB
+            _ = torch.empty((huge_elements,), dtype=torch.float32, device="cuda:0")
 
         assert "[OmniPEFT OOM Interceptor Report]" in str(exc_info.value)
         assert "Allocated Memory Pre-OOM" in str(exc_info.value)
 
-    def test_log_memory_summary_execution(self, guard_instance: CUDAMemoryGuard) -> None:
+    def test_log_memory_summary_execution(
+        self, guard_instance: CUDAMemoryGuard
+    ) -> None:
         # Verify log_memory_summary executes cleanly without errors.
         try:
             guard_instance.log_memory_summary()
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             pytest.fail(f"log_memory_summary raised an unexpected exception: {err}")

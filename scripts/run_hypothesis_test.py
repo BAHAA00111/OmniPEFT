@@ -14,7 +14,9 @@ import numpy as np
 
 from omnipeft.analytics.hypothesis_testing import HypothesisTestingEngine
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger("omnipeft.hypothesis_runner")
 
 
@@ -24,11 +26,18 @@ def generate_visualization_charts(
     output_dir: Path,
 ) -> None:
     """Generate distribution boxplots and score delta histogram plots."""
-    plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-
+    plt.style.use(
+        "seaborn-v0_8-whitegrid"
+        if "seaborn-v0_8-whitegrid" in plt.style.available
+        else "default"
+    )
+    _, axes = plt.subplots(1, 2, figsize=(12, 5))
     # Plot 1: Score Distribution Boxplot
-    axes[0].boxplot([scores_base, scores_fused], labels=["Baseline", "Fused PEFT"], patch_artist=True)
+    axes[0].boxplot(
+        [scores_base, scores_fused],
+        labels=["Baseline", "Fused PEFT"],
+        patch_artist=True,
+    )
     axes[0].set_title("Metric Distribution Comparison")
     axes[0].set_ylabel("Score (ROUGE-L)")
 
@@ -36,7 +45,13 @@ def generate_visualization_charts(
     diffs = np.array(scores_fused) - np.array(scores_base)
     axes[1].hist(diffs, bins=15, color="skyblue", edgecolor="black")
     axes[1].axvline(0.0, color="red", linestyle="--", linewidth=1.5, label="Zero Delta")
-    axes[1].axvline(float(np.mean(diffs)), color="green", linestyle="-", linewidth=2, label=f"Mean Delta (+{np.mean(diffs):.2f})")
+    axes[1].axvline(
+        float(np.mean(diffs)),
+        color="green",
+        linestyle="-",
+        linewidth=2,
+        label=f"Mean Delta (+{np.mean(diffs):.2f})",
+    )
     axes[1].set_title("Paired Score Difference Distribution (Fused - Base)")
     axes[1].set_xlabel("Delta")
     axes[1].set_ylabel("Frequency")
@@ -58,8 +73,12 @@ def main() -> None:
         default="./artifacts/evaluation_results/raw_evaluation_vectors.json",
         help="Path to raw evaluation vectors JSON file",
     )
-    parser.add_argument("--output_dir", type=str, default="./artifacts/evaluation_results")
-    parser.add_argument("--alpha", type=float, default=0.01, help="Significance threshold")
+    parser.add_argument(
+        "--output_dir", type=str, default="./artifacts/evaluation_results"
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.01, help="Significance threshold"
+    )
 
     args = parser.parse_args()
     out_dir = Path(args.output_dir)

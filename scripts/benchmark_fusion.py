@@ -2,12 +2,12 @@
 OmniPEFT CLI Script for Fusion Latency & Memory Profiling.
 
 Usage:
-    python omnipeft/scripts/benchmark_fusion.py 
-        --base-model-path Qwen/Qwen2.5-3B-Instruct 
-        --adapter-path ./checkpoints/checkpoint-final 
-        --batch-size 1 
-        --seq-len 512 
-        --warmup-steps 10 
+    python omnipeft/scripts/benchmark_fusion.py
+        --base-model-path Qwen/Qwen2.5-3B-Instruct
+        --adapter-path ./checkpoints/checkpoint-final
+        --batch-size 1
+        --seq-len 512
+        --warmup-steps 10
         --benchmark-steps 50
 """
 
@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Dict, cast
 
 import torch
-import torch.nn as nn
+from torch import nn
 from peft import PeftModel
 from transformers import AutoModelForCausalLM
 
@@ -101,7 +101,11 @@ def run_fusion_benchmark(
     device: str = "cpu",
 ) -> Dict[str, Any]:
     """Load model architecture, generate fused variant, and execute full latency evaluation."""
-    dtype = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float32
+    dtype = (
+        torch.bfloat16
+        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+        else torch.float32
+    )
 
     logger.info("Loading Base Model from %s...", base_model_path)
     base_model = AutoModelForCausalLM.from_pretrained(
@@ -122,7 +126,7 @@ def run_fusion_benchmark(
 
     logger.info("Constructing Fused Model Variant...")
     fusion_engine = WeightFusionEngine(target_dtype=dtype)
-    
+
     # Cast unfused model to nn.Module to bypass Pylance union ambiguities
     unfused_module = cast(nn.Module, unfused_peft)
     fused_model = fusion_engine.fuse_peft_model(unfused_module, safe_merge=True)
@@ -168,8 +172,8 @@ def main() -> None:
             output_json=args.output_json,
             device=args.device,
         )
-    except Exception as e:
-        logger.error("Benchmark CLI Execution Failed: %s", e, exc_info=True)
+    except Exception:
+        logger.exception("Benchmark CLI Execution Failed")
         sys.exit(1)
 
 

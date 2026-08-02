@@ -12,7 +12,6 @@ import pytest
 from omnipeft.analytics.metrics import EvaluationMetricsEngine, PerplexityTracker
 
 
-
 # 1. Tests for PerplexityTracker
 class TestPerplexityTracker:
     """Tests covering online loss aggregation and exponentiation logic."""
@@ -80,7 +79,6 @@ class TestPerplexityTracker:
         assert tracker.perplexity == 1.0
 
 
-
 # 2. Tests for EvaluationMetricsEngine
 class TestEvaluationMetricsEngine:
     """Tests covering LCS ROUGE-L math, Hugging Face metric integration, and Python fallbacks."""
@@ -101,7 +99,11 @@ class TestEvaluationMetricsEngine:
             ("", "the cat sat on the mat", 0.0),
             ("the cat sat on the mat", "", 0.0),
             ("completely unrelated text", "fox leaps over fence", 0.0),
-            ("the cat mat", "the cat sat on the mat", 2 * (3 / 3) * (3 / 6) / ((3 / 3) + (3 / 6))),
+            (
+                "the cat mat",
+                "the cat sat on the mat",
+                2 * (3 / 3) * (3 / 6) / ((3 / 3) + (3 / 6)),
+            ),
         ],
     )
     def test_compute_rouge_l(self, pred: str, ref: str, expected_score: float) -> None:
@@ -120,7 +122,12 @@ class TestEvaluationMetricsEngine:
             predictions=["pred1", "pred2"],
             references=["ref1"],
         )
-        assert res_mismatch == {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0, "bleu": 0.0}
+        assert res_mismatch == {
+            "rouge1": 0.0,
+            "rouge2": 0.0,
+            "rougeL": 0.0,
+            "bleu": 0.0,
+        }
 
     def test_fallback_computation_path(self) -> None:
         """Verify smooth fallback execution when external metric packages raise an Exception."""
@@ -128,7 +135,9 @@ class TestEvaluationMetricsEngine:
         refs = ["the cat sat on the mat", "the dog barked loudly"]
 
         # Intercept import of 'evaluate' to trigger the fallback logic cleanly
-        with patch("builtins.__import__", side_effect=ImportError("HF Evaluate missing")):
+        with patch(
+            "builtins.__import__", side_effect=ImportError("HF Evaluate missing")
+        ):
             metrics = EvaluationMetricsEngine.compute_generation_metrics(preds, refs)
 
             # Ensure fallback returns valid ROUGE dictionary structure

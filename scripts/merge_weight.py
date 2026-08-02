@@ -5,10 +5,10 @@ Converts adapter checkpoints and base models into unified, zero-overhead standal
 deployable model artifacts.
 
 Usage:
-    python omnipeft/scripts/merge_weights.py 
-        --base-model-path Qwen/Qwen2.5-3B-Instruct 
-        --adapter-path ./checkpoints/checkpoint-final 
-        --output-dir ./fused_models/qwen2.5-3b-fused 
+    python omnipeft/scripts/merge_weights.py
+        --base-model-path Qwen/Qwen2.5-3B-Instruct
+        --adapter-path ./checkpoints/checkpoint-final
+        --output-dir ./fused_models/qwen2.5-3b-fused
         --precision bfloat16
 """
 
@@ -16,7 +16,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import  Dict
+from typing import Dict
 
 import torch
 from peft import PeftModel
@@ -165,8 +165,8 @@ def main() -> None:
             safe_serialization=args.safe_serialization,
             device=args.device,
         )
-    except Exception as e:
-        logger.error("Weight Fusion Pipeline failed with error: %s", e, exc_info=True)
+    except Exception:
+        logger.exception("Weight Fusion Pipeline failed")
         sys.exit(1)
 
 
